@@ -1,0 +1,226 @@
+:- use_module(library(clpfd)).
+
+sudoku(Rows) :- 
+  append(Rows, Vs), Vs ins 1..9,
+  maplist(all_distinct, Rows),
+  transpose(Rows, Columns),     
+  maplist(all_distinct, Columns), 
+  Rows = [A,B,C,D,E,F,G,H,I],     
+  blocks(A, B, C), 
+  blocks(D, E, F), 
+  blocks(G, H, I),     
+[R1,R2,R3,R4,R5,R6,R7,R8,R9] = Rows,
+[R1C1,R1C2,R1C3,R1C4,R1C5,R1C6,R1C7,R1C8,R1C9] = R1,
+[R2C1,R2C2,R2C3,R2C4,R2C5,R2C6,R2C7,R2C8,R2C9] = R2,
+[R3C1,R3C2,R3C3,R3C4,R3C5,R3C6,R3C7,R3C8,R3C9] = R3,
+[R4C1,R4C2,R4C3,R4C4,R4C5,R4C6,R4C7,R4C8,R4C9] = R4,
+[R5C1,R5C2,R5C3,R5C4,R5C5,R5C6,R5C7,R5C8,R5C9] = R5,
+[R6C1,R6C2,R6C3,R6C4,R6C5,R6C6,R6C7,R6C8,R6C9] = R6,
+[R7C1,R7C2,R7C3,R7C4,R7C5,R7C6,R7C7,R7C8,R7C9] = R7,
+[R8C1,R8C2,R8C3,R8C4,R8C5,R8C6,R8C7,R8C8,R8C9] = R8,
+[R9C1,R9C2,R9C3,R9C4,R9C5,R9C6,R9C7,R9C8,R9C9] = R9,
+
+R1C6 #> R1C5,
+R1C7 #> R1C8,
+R1C8 #> R2C8,
+R1C9 #> R1C8,
+
+R2C2 #> R3C2,
+R2C5 #> R2C4,
+R2C6 #> R1C6,
+R2C8 #> R3C8,
+R2C9 #> R1C9,
+
+R3C1 #> R3C2,
+R3C6 #> R2C6,
+R3C7 #> R2C7,
+R3C8 #> R3C7,
+R3C9 #> R2C9,
+
+R4C2 #> R5C2,
+R4C3 #> R4C2,
+R4C5 #> R5C5,
+R4C6 #> R5C6,
+R4C7 #> R5C7,
+R4C8 #> R5C8,
+
+R5C1 #> R6C1,
+R5C3 #> R4C3,
+R5C3 #> R5C2,
+R5C4 #> R6C4,
+R5C4 #> R5C5,
+R5C5 #> R5C6,
+R5C8 #> R5C9,
+R5C8 #> R6C8,
+
+R6C1 #> R6C2,
+R6C2 #> R5C2,
+R6C2 #> R6C3,
+R6C3 #> R5C3,
+R6C4 #> R6C5,
+R6C7 #> R5C7,
+R6C8 #> R6C7,
+R6C8 #> R6C9,
+
+R7C1 #> R8C1,
+R7C3 #> R8C3,
+R7C4 #> R7C5,
+R7C6 #> R8C6,
+
+R8C2 #> R8C3,
+R8C4 #> R7C4,
+R8C4 #> R9C4,
+
+R9C1 #> R8C1,
+R9C4 #> R9C5,
+R9C6 #> R9C5,
+R9C6 #> R8C6,
+
+% add in the hint/legend, where the colors
+% either mean +/- that number from the "previous"
+% cell or the "next" cell, as Japanese writing goes
+% (top-to-bottom, right-to-left)
+
+%% start with "previous"
+%% all the +/-1's
+%1 #= abs(R1C5-R9C6),
+%1 #= abs(R8C9-R7C9),
+%% all the +/- 2's
+%2 #= abs(R2C1-R1C1),
+%2 #= abs(R7C1-R6C1),
+%2 #= abs(R9C6-R8C6),
+%2 #= abs(R9C9-R8C9),
+%% all the +/- 3's
+%3 #= abs(R4C3-R3C3),
+%3 #= abs(R5C1-R4C1),
+%3 #= abs(R8C2-R7C2),
+%3 #= abs(R9C5-R8C5),
+%3 #= abs(R8C8-R7C8),
+%% all the +/- 4's
+%4 #= abs(R2C7-R1C7),
+%% all the +/- 5's
+%5 #= abs(R6C8-R5C8),
+%% +/- 6
+%6 #= abs(R7C4-R6C4),
+%% came up 'false'
+
+%% trying "next"
+%% all the +/-1's
+%1 #= abs(R1C5-R2C5),
+%1 #= abs(R8C9-R9C9),
+%% all the +/- 2's
+%2 #= abs(R2C1-R3C1),
+%2 #= abs(R7C1-R8C1),
+%2 #= abs(R9C6-R1C5),
+%2 #= abs(R9C9-R8C1),
+%% all the +/- 3's
+%3 #= abs(R4C3-R5C3),
+%3 #= abs(R5C1-R6C1),
+%3 #= abs(R8C2-R9C2),
+%3 #= abs(R9C5-R4C1),
+%3 #= abs(R8C8-R9C8),
+%% all the +/- 4's
+%4 #= abs(R2C7-R3C7),
+%% all the +/- 5's
+%5 #= abs(R6C8-R7C8),
+%% +/- 6
+%6 #= abs(R7C4-R8C4),
+%% also came up 'false'
+% from Ciprian Tutu - the +/- don't play a role in solving the sudoku
+
+maplist(label, Rows).
+
+blocks([], [], []).       
+
+blocks([A,B,C|Bs1], [D,E,F|Bs2], [G,H,I|Bs3]) :-     
+  all_distinct([A,B,C,D,E,F,G,H,I]),      
+  blocks(Bs1, Bs2, Bs3).
+
+problem(1,
+           [[_,_,_,_,_,_,_,_,_],
+            [_,_,_,_,_,_,_,_,_],
+            [_,_,_,_,_,_,_,_,_],
+            [_,_,_,_,_,_,_,_,_],
+            [_,_,_,_,_,_,_,_,_],
+            [_,_,_,_,_,_,_,_,_],
+            [_,_,_,_,_,_,_,_,_],
+            [_,_,_,_,_,_,_,_,_],
+            [_,_,_,_,_,_,_,_,_]]).
+
+
+% load/consult this file in prolog, then in interactive window, run:
+%     problem(1, Rows), sudoku(Rows), maplist(writeln,Rows).
+
+% now only one solution
+%[1,9,8,2,3,4,7,5,6]
+%[3,7,2,5,9,6,1,4,8]
+%[5,4,6,1,7,8,2,3,9]
+%[7,2,3,4,8,5,6,9,1]
+%[9,1,4,7,6,2,3,8,5]
+%[8,6,5,3,1,9,4,7,2]
+%[4,5,9,6,2,3,8,1,7]
+%[2,8,7,9,4,1,5,6,3]
+%[6,3,1,8,5,7,9,2,4]
+% N 26° 23.572 W 080° 05.544
+% 14 blocks are colored ->
+% N xx xx.xxx W xx xx.xxx
+% Japanese writing = top-down, right-to-left
+% colored squares in that order:
+% 3 4 7 6 1 7 3 5 6 3 8 3 9 4
+% with color interpretations:
+% 3 +/- 1 = 2 or 4
+% 4 +/- 2 = 2 or 6
+% 7 +/- 5 = 2
+% 6 +/- 3 = 3 or 9
+% 1 +/- 4 = 5
+% 7 +/- 2 = 5 or 9
+% 3 +/- 1 = 2 or 4
+% 5 +/- 3 = 2 or 8
+% 6 +/- 6 = 0
+% 3 +/- 3 = 0 or 6
+% 8 +/- 3 = 5
+% 3 +/- 2 = 1 or 5
+% 9 +/- 3 = 6
+% 4 +/- 2 = 2 or 6
+
+% N (2 or 4)(2 or 6) 2(3 or 9) 5(5 or 9)(2 or 4)
+% W (2 or 8)0 (0 or 6)5.(1 or 5)6(2 or 6)
+
+% probably:
+% N 26 23.5(5 or 9)(2 or 4)
+% W 80 05.(1 or 5)6(2 or 6)
+
+% North possibilities:
+% N 26 23.552
+% N 26 23.554
+% N 26 23.592
+% N 26 23.594
+
+% West possibilities:
+% W 80 05.162
+% W 80 05.166
+% W 80 05.562
+% W 80 05.566
+
+% N 26 23.552 W 80 05.162 satellite doesn't look good
+% ditto W 80 05.166
+% N 26 23.552 W 80 05.562 - plausible -> no chk
+% N 26 23.552 W 80 05.566 - plausible -> no
+
+% N 26 23.554 W 80 05.162 - doesn't look g
+% N 26 23.554 W 80 05.166 - ''
+% N 26 23.554 W 80 05.562 - plaus -> no
+% N 26 23.554 W 80 05.566 - plaus -> no
+
+% N 26 23.592 W 80 05.162 - no
+% N 26 23.592 W 80 05.166 - no
+% N 26 23.592 W 80 05.562 - plaus -> no
+% N 26 23.592 W 80 05.566 - plaus -> no
+
+% N 26 23.594 W 80 05.162 - no
+% N 26 23.594 W 80 05.166 - no
+% N 26 23.594 W 80 05.562 - plaus -> confirmed
+% N 26 23.594 W 80 05.566 - plaus
+
+
+

@@ -1,0 +1,33 @@
+:- discontiguous puzzle/4.
+:- discontiguous not/1.
+lastday(X) :- member(X, [mar24, may3, may21, aug2]).
+holiday(X) :- member(X, [allsaints, cinquo, easter, newyears]).
+team(X) :- member(X, [bears,broncos,giants,patriots]).
+person(X) :- member(X, [alice,aubrey,ryan,victor]).
+puzzle(P, T, H, L) :- person(P), team(T), holiday(H), lastday(L).
+leavesafter(A,B) :- A == mar24, B == may3; A == mar24, B == may21; A == mar24, B == aug2;
+  A == may3, B == may21; A == may3, B == aug2;   A == may21, B == aug2.
+not(puzzle(_,broncos,newyears,_)). /* hint 1 */
+puzzle(alice,_,_,mar24). /* hint 2 */
+not(puzzle(aubrey,_,easter,_)). /* hint 3 */
+not(puzzle(victor,giants,_,_)). /* hint 4 */
+hint5 :-
+  puzzle(ryan,_,easter,_) ;
+  puzzle(ryan,_,newyears,_).      /* hint 5 */
+hint5.
+not(puzzle(aubrey,broncos,_,_)). /* hint 6 */
+not(puzzle(victor,broncos,_,_)).
+not(puzzle(_,_,cinquo, mar24)). /* hint 7: mar24 is not cinqo */
+puzzle(_,giants,_,aug2). /* hint 8 */
+hint9 :-
+puzzle(_,_,cinquo,may21), puzzle(ryan,broncos,_,_) ; /* hint 9: of cinquo or Ryan, one is may21 other is broncos */
+puzzle(_,broncos,cinquo,_), puzzle(ryan,_,_,may21).
+hint9.
+not(puzzle(alice,_,easter,_)). /* hint 10: easter is not alice or victor */
+not(puzzle(victor,_,easter,_)).
+not(puzzle(_,bears,allsaints,_)).  /* hint 11: not: all saints day & bears */
+hint12 :-
+  puzzle(alice,_,_,X), puzzle(_, broncos, _, Y),  leavesafter(Y, X).
+hint12. /* hint 12: broncos fan leaves after alice */
+hint13 :- puzzle(_,_,newyears,X), puzzle(_, bears, _, Y), leavesafter(X, Y).
+hint13. /* hint 13: new year’s person leaves after the bears fan */
